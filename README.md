@@ -4,6 +4,7 @@
 find drug(molecule) combinations that can be used for new diseases (i.e. other than the purpose of each molecule taken separately)
 ## Example:  
 'nifedipine': high blood pressure, 'lidocaine': local anesthetic, 'nifedipine+lidocaine': hemorrhoids treatment 
+
 Can we discover other combinations?
 
 ## Steps:
