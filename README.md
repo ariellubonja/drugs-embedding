@@ -1,9 +1,11 @@
 # drugs-embedding
 
-# Project goal: find drug(molecule) combinations that can be used for new diseases (i.e. other than the purpose of each molecule taken separately)
-# Example  'nifedipine': high blood pressure, 'lidocaine': local anesthetic, 'nifedipine+lidocaine': hemorrhoids treatment 
+## Project goal: 
+find drug(molecule) combinations that can be used for new diseases (i.e. other than the purpose of each molecule taken separately)
+## Example:  
+'nifedipine': high blood pressure, 'lidocaine': local anesthetic, 'nifedipine+lidocaine': hemorrhoids treatment 
 
-# Steps:
+## Steps:
 1. Find a good embedding model for drugs and diseases
   1.1. How to evaluate if a model is good for drugs? Take known drugs and see of they embed close together eg. via hierarchical clustering
   1.2. How to evaluate if the drugs to disease embeddings is good? Ibuprofen - Fever - Lidocaine = ? Ibuprofen - Pain - Nifedipine = ? We should get the diseases
