@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 
+base_url = "https://www.drugs.com"
 
 def get_all_drugs_html(folder_path):
     html_text = {}
@@ -27,7 +28,7 @@ def get_unique_drugs(drugs_edgelist_csv_path="outputs/drugs_html_edgelist.csv"):
     drugs_df.iloc[:,1] = drugs_df.iloc[:,1].str.replace("/", "$")
 
     # Get only drug name (remove url)
-    drugs_df = drugs_df.applymap(html_tools.replace_url_w_drug_name)
+    drugs_df = drugs_df.applymap(replace_url_w_drug_name)
 
     drugs_df = drugs_df['0'].tolist() + drugs_df['1'].tolist()
 
