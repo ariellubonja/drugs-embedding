@@ -1,6 +1,7 @@
 import os
 from bs4 import BeautifulSoup
 import requests
+import pandas as pd
 
 
 def get_all_drugs_html(folder_path):
@@ -11,6 +12,34 @@ def get_all_drugs_html(folder_path):
                 html_text[filename] = file.read()
     
     return html_text
+
+
+def get_unique_drugs(drugs_edgelist_csv_path="outputs/drugs_html_edgelist.csv"):
+    """
+    Get the set of unique drugs from the crawled websites
+    Returns only drugs that are contain a "Related Drugs" section. These are the only ones included in the graph
+    """
+
+    drugs_df = pd.read_csv(drugs_edgelist_csv_path)
+
+    # Undo replacement of "/" with "$"
+    drugs_df.iloc[:,0] = drugs_df.iloc[:,0].str.replace("/", "$")
+    drugs_df.iloc[:,1] = drugs_df.iloc[:,1].str.replace("/", "$")
+
+    # Get only drug name (remove url)
+    drugs_df = drugs_df.applymap(html_tools.replace_url_w_drug_name)
+
+    drugs_df = drugs_df['0'].tolist() + drugs_df['1'].tolist()
+
+    return set(drugs_df)
+
+
+def replace_url_w_drug_name(url: str):
+    """
+    Replaces the drug name in the url with the drug name
+    E.g. https://www.drugs.com/mtm/prevident.html > prevident
+    """
+    return url[url.rfind("$")+1:-5]
 
 
 def get_drug_urls_in_list_page(page_url):
@@ -40,7 +69,7 @@ def get_drug_urls_in_list_page(page_url):
         return []
 
 
-def get_drug_class_name(html_text):
+def get_drug_class_name(html_text, print_warnings=True):
     """
     From html_text of a Drugs.com drug page, extract the drug class name and URL
 
@@ -52,38 +81,26 @@ def get_drug_class_name(html_text):
     
     soup = BeautifulSoup(html_text, 'html.parser')
 
-    # # Find the <b> tag containing 'Drug class:'
-    # drug_class_tag = soup.find('b', string='Drug class:')
-
-    # # Find the <a> tag that follows the <b> tag
-    # a_tag = drug_class_tag.find_next_sibling('a')
-
-    # # Extract the href link and text
-    # href_link = a_tag['href']
-    # text = a_tag.get_text()
-
-
-    # return (text, href_link)
-
-    # Find the <b> tag containing 'Drug class:'
+    # Not all drugs have a drug class in the data
     try:
         drug_class_tag = soup.find('b', string='Drug class:')
         if drug_class_tag is None:
             raise AttributeError('Drug class tag not found')
         
         # Find the <a> tag that follows the <b> tag
-        a_tag = drug_class_tag.find_next_sibling('a')
+        sibling = drug_class_tag.find_next_sibling('a')
 
-        # Extract the href link and text
-        href_link = a_tag['href']
-        text = a_tag.get_text()
+        # The drug class may not always be a link
+        if sibling.name == 'a':  # If the next sibling is an <a> tag
+            href_link = sibling['href']
+            drug_class = sibling.get_text()
+        else:
+            drug_class = sibling.strip()
+            href_link = None
 
-        # Print the extracted href link and text
-        print(href_link)
-        print(text)
+        return (drug_class, href_link)
+    
     except AttributeError as e:
-        print('Warning: Drug Class not found in ', soup.title.string)#, e)
-
-
-
+        if print_warnings:
+            print('Warning: Drug Class not found in ', soup.title.string)#, e)
 
